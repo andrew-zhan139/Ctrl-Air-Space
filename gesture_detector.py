@@ -24,7 +24,7 @@ class Gestures:
         pass
 
 def relative_to_absolute(relative, img_width, img_height):
-    return relative @ np.diag([img_width, img_height])
+    return relative @ np.diag([img_height, img_width])
 
 def landmark_to_array(multi_hand_landmark):
     """ e.g. multi_hand_landmark = results.multi_hand_landmarks[0]"""
@@ -74,25 +74,22 @@ class GestureDetector:
         return flipped
     
 
-    def update_history(self, result):
-        self.history.append(result)
+    def update_history(self, array):
+        # Need to readjust because image is flipped horizontally
+        # readjusted_coords = np.array([1, 0]) - np.multiply(array, [1, -1]) 
+        # self.history.append(readjusted_coords)
+        self.history.append(array)
 
 
     def close(self):
         self.hands.close()
 
-
 if __name__ == "__main__":
-    buffer_size = 1000 # Will depend on computer
-    gesture_detector = GestureDetector(buffer_size=buffer_size)
+    frame_delay = 0.05
 
-    start = time.time()
-    prev_time = start
-    processing_rate = 20
-    approx_window_length = 2
-    record_start_time = 5
-    x = collections.deque(maxlen=approx_window_length*processing_rate)
-    y = collections.deque(maxlen=approx_window_length*processing_rate)
+    history_window = 5 # Num seconds of history to save
+    buffer_size = int(history_window / frame_delay) 
+    gesture_detector = GestureDetector(buffer_size=buffer_size)
     try:
         cap = cv2.VideoCapture(0)
         while cap.isOpened():
@@ -100,23 +97,34 @@ if __name__ == "__main__":
             if not success:
                 print("Ignoring empty camera frame.")
                 continue
-            
+
+            w, h, _ = image.shape
             results = gesture_detector.run(image)
+
+            # Showing the results
             img = gesture_detector.render(image, results)
+
+            if gesture_detector.history:
+                print("Gesture:", gesture_detector.history[-1][8])
+                pts = np.int32(relative_to_absolute(np.asarray(gesture_detector.history)[:, 8], w, h))
+                img = cv2.polylines(img, [pts.reshape((-1, 1, 2))], isClosed=False, color=(0,255,255))
+            
             cv2.imshow('MediaPipe Hands', img)
+
             if cv2.waitKey(5) & 0xFF == 27:
                 break
-            
-            if time.time() > record_start_time and time.time() - prev_time > 1 / processing_rate:
-                prev_time = time.time()
-                if gesture_detector.history:
-                    print(gesture_detector.history)
-                    x.append(gesture_detector.history[-1][8][0]) # Getting the most recent result
-                    y.append(gesture_detector.history[-1][8][1])
+
+            time.sleep(frame_delay)
 
     except:  
         gesture_detector.close()
         cap.release()
-        plt.plot(list(x), list(y))
+
+        all_coords = np.asarray(gesture_detector.history)
+        coords = relative_to_absolute(all_coords[:, 8], w, h)
+        plt.plot(coords[:, 0], coords[:, 1])
+        axes = plt.gca()
+        axes.set_xlim([0, w])
+        axes.set_ylim([0, h])
         plt.show()
         raise
