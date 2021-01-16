@@ -14,14 +14,35 @@ import matplotlib.pyplot as plt
 # Enum that can be used as numbers (e.g. LANDMARK.WRIST is 0)
 LANDMARK  = mp.solutions.hands.HandLandmark  
 
-class Gestures:
-    @staticmethod
-    def is_swipe(history, window, horizontal_thresh, vertical_thresh):
-        horizontal = history[-1][LANDMARK.INDEX_FINGER_TIP, 0] - history[-int(window)][LANDMARK.INDEX_FINGER_TIP, 0] 
-        vertical = history[-1][LANDMARK.INDEX_FINGER_TIP, 1] - history[-int(window)][LANDMARK.INDEX_FINGER_TIP, 1]
-        print(f"H={horizontal}, V={vertical}")
-        return abs(horizontal) > horizontal_thresh and abs(vertical) < vertical_thresh
 
+class SwipeDetector:
+    def __init__(self, window, main_axis_thresh, cross_axis_thresh, cooldown):
+        self.window = window
+        self.main_axis_thresh = main_axis_thresh # Relative coords
+        self.cross_axis_thresh = cross_axis_thresh # Relative coords
+        self.cooldown = cooldown # Number of seconds
+
+        self.previous_swipe_time = -np.inf
+
+    def get_swipe(self, axis, history):
+        """Getting swipe direction
+        For axis=0: -1 is left, 1 is right, 0 is no swipe 
+        For axis=1: -1 is up, 1 is down, 0 is no swipe
+        """
+        if time.time() - self.previous_swipe_time < self.cooldown:
+            return 0
+        else:
+            main_axis = axis
+            cross_axis = 0 if axis == 1 else 1
+            main = history[-1][LANDMARK.INDEX_FINGER_TIP, main_axis] - history[-int(self.window)][LANDMARK.INDEX_FINGER_TIP, main_axis] 
+            cross = history[-1][LANDMARK.INDEX_FINGER_TIP, cross_axis] - history[-int(self.window)][LANDMARK.INDEX_FINGER_TIP, cross_axis]
+            if abs(main) > self.main_axis_thresh and abs(cross) < self.cross_axis_thresh:
+                self.previous_swipe_time = time.time()
+                return -1 if main < 0 else 1 
+            else:
+                return 0
+
+class Gestures:
     @staticmethod
     def is_call(history):
         pass
@@ -34,7 +55,7 @@ def landmark_to_array(multi_hand_landmark):
     # return np.asarray([[pt.x, pt.y, pt.z] for pt in multi_hand_landmark.landmark])
     return np.asarray([[pt.x, pt.y] for pt in multi_hand_landmark.landmark])
 
-class GestureDetector:
+class MPHands:
     def __init__(self, buffer_size=None):
         self.hands = mp.solutions.hands.Hands(
             min_detection_confidence=0.75, 
@@ -92,11 +113,16 @@ if __name__ == "__main__":
 
     history_window = 5 # Num seconds of history to save
     buffer_size = int(history_window / frame_delay) 
-    gesture_detector = GestureDetector(buffer_size=buffer_size)
+    mp_hands = MPHands(buffer_size=buffer_size)
+    swipe_detector = SwipeDetector(
+        window=0.5 / frame_delay, 
+        main_axis_thresh=0.5, 
+        cross_axis_thresh=0.2,
+        cooldown=1
+    )
     curr_colour = np.random.uniform(0, 255, 3)
 
     previous_swipe_time = -100000 
-    swipe_cooldown = 1
     try:
         cap = cv2.VideoCapture(0)
         while cap.isOpened():
@@ -106,25 +132,27 @@ if __name__ == "__main__":
                 continue
 
             w, h, _ = image.shape
-            results = gesture_detector.run(image)
+            results = mp_hands.run(image)
 
             # Showing the results
-            img = gesture_detector.render(image, results)
+            img = mp_hands.render(image, results)
 
-            if gesture_detector.history:
+            if mp_hands.history:
                 # print("Gesture:", gesture_detector.history[-1][8])
                 try:
-                    if Gestures.is_swipe(gesture_detector.history, 0.5 / frame_delay, 0.5, 0.2):
-                        if time.time() - previous_swipe_time > swipe_cooldown:
-                            print("SWIPED!!!!!!!!!!!!")
-                            curr_colour = np.random.uniform(0, 255, 3)
-                            previous_swipe_time = time.time()
-                        else:
-                            pass
-                            # print("Swiped, but not ready.")
+                    h_swipe = swipe_detector.get_swipe(0, mp_hands.history)
+                    v_swipe = swipe_detector.get_swipe(1, mp_hands.history)
+                    if h_swipe != 0:
+                        print(f"SWIPED {'left' if h_swipe == -1 else 'right'}!!!!!!!!!!!!")
+                        curr_colour = np.random.uniform(0, 255, 3)
+                        previous_swipe_time = time.time()
+                    elif v_swipe != 0:
+                        print(f"SWIPED {'up' if v_swipe == -1 else 'down'}!!!!!!!!!!!!")
+                        curr_colour = np.random.uniform(0, 255, 3)
+                        previous_swipe_time = time.time()
                 except IndexError:
                     continue
-                pts = np.int32(relative_to_absolute(np.asarray(gesture_detector.history)[:, 8], w, h))
+                pts = np.int32(relative_to_absolute(np.asarray(mp_hands.history)[:, 8], w, h))
                 img = cv2.polylines(img, [pts.reshape((-1, 1, 2))], isClosed=False, color=curr_colour)
             
             cv2.imshow('MediaPipe Hands', img)
@@ -135,6 +163,6 @@ if __name__ == "__main__":
             time.sleep(frame_delay)
 
     except:  
-        gesture_detector.close()
+        mp_hands.close()
         cap.release()
         raise
