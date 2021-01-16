@@ -16,8 +16,11 @@ LANDMARK  = mp.solutions.hands.HandLandmark
 
 class Gestures:
     @staticmethod
-    def is_swipe(history, threshold_occurance, threshold_deviation):
-        return 
+    def is_swipe(history, window, horizontal_thresh, vertical_thresh):
+        horizontal = history[-1][LANDMARK.INDEX_FINGER_TIP, 0] - history[-int(window)][LANDMARK.INDEX_FINGER_TIP, 0] 
+        vertical = history[-1][LANDMARK.INDEX_FINGER_TIP, 1] - history[-int(window)][LANDMARK.INDEX_FINGER_TIP, 1]
+        print(f"H={horizontal}, V={vertical}")
+        return abs(horizontal) > horizontal_thresh and abs(vertical) < vertical_thresh
 
     @staticmethod
     def is_call(history):
@@ -90,6 +93,10 @@ if __name__ == "__main__":
     history_window = 5 # Num seconds of history to save
     buffer_size = int(history_window / frame_delay) 
     gesture_detector = GestureDetector(buffer_size=buffer_size)
+    curr_colour = np.random.uniform(0, 255, 3)
+
+    previous_swipe_time = -100000 
+    swipe_cooldown = 1
     try:
         cap = cv2.VideoCapture(0)
         while cap.isOpened():
@@ -105,9 +112,20 @@ if __name__ == "__main__":
             img = gesture_detector.render(image, results)
 
             if gesture_detector.history:
-                print("Gesture:", gesture_detector.history[-1][8])
+                # print("Gesture:", gesture_detector.history[-1][8])
+                try:
+                    if Gestures.is_swipe(gesture_detector.history, 0.5 / frame_delay, 0.5, 0.2):
+                        if time.time() - previous_swipe_time > swipe_cooldown:
+                            print("SWIPED!!!!!!!!!!!!")
+                            curr_colour = np.random.uniform(0, 255, 3)
+                            previous_swipe_time = time.time()
+                        else:
+                            pass
+                            # print("Swiped, but not ready.")
+                except IndexError:
+                    continue
                 pts = np.int32(relative_to_absolute(np.asarray(gesture_detector.history)[:, 8], w, h))
-                img = cv2.polylines(img, [pts.reshape((-1, 1, 2))], isClosed=False, color=(0,255,255))
+                img = cv2.polylines(img, [pts.reshape((-1, 1, 2))], isClosed=False, color=curr_colour)
             
             cv2.imshow('MediaPipe Hands', img)
 
@@ -119,12 +137,4 @@ if __name__ == "__main__":
     except:  
         gesture_detector.close()
         cap.release()
-
-        all_coords = np.asarray(gesture_detector.history)
-        coords = relative_to_absolute(all_coords[:, 8], w, h)
-        plt.plot(coords[:, 0], coords[:, 1])
-        axes = plt.gca()
-        axes.set_xlim([0, w])
-        axes.set_ylim([0, h])
-        plt.show()
         raise
