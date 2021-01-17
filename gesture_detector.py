@@ -73,7 +73,7 @@ class GestureDetector:
     def __init__(self, window):
         self.state = "none"
         self.is_click = False  # Only use when state is "mouse"
-        self.scroll_height = -1 # Relative (Only use when state is "scroll")
+        self.scroll_height = -1 # Relative (Only use when state is "scroll" or "volume")
         self.history = collections.deque(maxlen=100)
         self.swipe_detector = SwipeDetector(
             window=10,
@@ -86,13 +86,16 @@ class GestureDetector:
         self.is_click = False
         self.history.append(hand)
         # Two-finger ================================
-        if is_hand("peace", self.history, 5):
+        if is_hand("peace", self.history, 5) and not self.state == "volume":
             self.state = "scroll"
+        elif is_hand("spiderman", self.history, 5) and not self.state == "scroll":
+            self.state = "volume"
 
-        if self.state == "scroll":
-            self.scroll_height = landmarks[LANDMARK.INDEX_FINGER_TIP][1]
+        if self.state == "scroll" or self.state == "volume":
+            self.scroll_height = 1 - landmarks[LANDMARK.MIDDLE_FINGER_MCP][1]
             if is_hand("palm-open", self.history, 5) or is_hand("palm-closed", self.history, 5): # Only palm can deactivate
                 self.state = "none"
+                self.scroll_height = -1
         else:
             # Swipe ====================================
             try:
