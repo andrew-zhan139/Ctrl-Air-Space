@@ -24,16 +24,27 @@ class SwipeDetector:
         self.main_axis_thresh = main_axis_thresh # Relative coords
         self.cross_axis_thresh = cross_axis_thresh # Relative coords
         self.cooldown = cooldown # Number of seconds
+        self.vicinity_thresh = main_axis_thresh * 0.25
 
         self.previous_swipe_time = -np.inf
+        self.previous_location = [-1, -1]
 
     def get_swipe(self, axis, history):
         """Getting swipe direction
         For axis=0: -1 is left, 1 is right, 0 is no swipe 
         For axis=1: -1 is up, 1 is down, 0 is no swipe
         """
-        if time.time() - self.previous_swipe_time < self.cooldown:
+
+        if time.time() - self.previous_swipe_time < self.cooldown: # Check cooldown
             return 0
+        elif np.linalg.norm(
+            self.previous_location - history[-1][LANDMARK.INDEX_FINGER_TIP]
+        ) < self.vicinity_thresh: # Check if swipe registered yet
+            return 0
+        # elif np.linalg.norm(
+        #     history[-int(self.window)][LANDMARK.INDEX_FINGER_TIP] - history[-int(self.window* 0.25)][LANDMARK.INDEX_FINGER_TIP]
+        # ) < self.vicinity_thresh: # Check for jumps
+        #     return 0
         else:
             main_axis = axis
             cross_axis = 0 if axis == 1 else 1
@@ -41,6 +52,7 @@ class SwipeDetector:
             cross = history[-1][LANDMARK.INDEX_FINGER_TIP, cross_axis] - history[-int(self.window)][LANDMARK.INDEX_FINGER_TIP, cross_axis]
             if abs(main) > self.main_axis_thresh and abs(cross) < self.cross_axis_thresh:
                 self.previous_swipe_time = time.time()
+                self.previous_location = history[-1][LANDMARK.INDEX_FINGER_TIP]
                 return -1 if main < 0 else 1 
             else:
                 return 0
@@ -76,7 +88,6 @@ class HandShapeDetector:
         return self.labels[int(prediction)]
 
 
-
 def relative_to_absolute(relative, img_width, img_height):
     return relative @ np.diag([img_height, img_width])
 
@@ -109,14 +120,18 @@ class MPHands:
         # (CURRENTLY DEALING WITH ONE HAND) <---------------
         if results.multi_hand_landmarks:
             results_array = landmark_to_array(results.multi_hand_landmarks[0]) # Relative coords
-            # results_array = relative_to_absolute(results_array, img_width, img_height) # Absolute coords
-            self.update_history(results_array)
+            self._update_history(results_array)
+            print("!")
+        # else:
+        #     try:
+        #         self._update_history(self.history[-1])
+        #     except IndexError:
+        #         pass
 
         return results
 
-
     def render(self, image, results):
-        # Showing results
+        # Overlays the mediapipe "skeleton" onto the image
         flipped = cv2.flip(image, 1) # Flipped to match the results
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
@@ -127,8 +142,7 @@ class MPHands:
                 )
         return flipped
     
-
-    def update_history(self, array):
+    def _update_history(self, array):
         # Need to readjust because image is flipped horizontally
         # readjusted_coords = np.array([1, 0]) - np.multiply(array, [1, -1]) 
         # self.history.append(readjusted_coords)
@@ -141,35 +155,41 @@ class MPHands:
 if __name__ == "__main__":
     frame_delay = 0.05
 
-    history_window = 5 # Num seconds of history to save
+    swipe_duration = 0.5 # Approx num seconds for swipe to be valid
+    history_window = 0.5 # Num seconds of history to save in the mphands object
     buffer_size = int(history_window / frame_delay) 
+    curr_colour = np.random.uniform(0, 255, 3)
+    text = ""
+
     mp_hands = MPHands(buffer_size=buffer_size)
     swipe_detector = SwipeDetector(
-        window=0.5 / frame_delay, 
+        window=swipe_duration / frame_delay, 
         main_axis_thresh=0.5, 
         cross_axis_thresh=0.2,
-        cooldown=1
+        cooldown=0.5
     )
     handshape_detector = HandShapeDetector("data")
-    curr_colour = np.random.uniform(0, 255, 3)
 
-    previous_swipe_time = -100000 
     try:
         cap = cv2.VideoCapture(0)
         while cap.isOpened():
+            # 1. Get image ====================================================
             success, image = cap.read()
             if not success:
                 print("Ignoring empty camera frame.")
                 continue
 
+            # 2. Run mediapipe ================================================
             w, h, _ = image.shape
             results = mp_hands.run(image)
 
-            # Showing the results
-            img = mp_hands.render(image, results)
-            text = ""
-            if mp_hands.history:
-                # print("Gesture:", gesture_detector.history[-1][8])
+            # 3. Detect gestures ==============================================
+            if mp_hands.history: # Ensures there is history available
+                # Hand Shape -------------------------------
+                hand_shape = handshape_detector.get_handshape(mp_hands.history[-1])
+                text = hand_shape
+
+                # Hand Swipe -------------------------------
                 try:
                     h_swipe = swipe_detector.get_swipe(0, mp_hands.history)
                     v_swipe = swipe_detector.get_swipe(1, mp_hands.history)
@@ -184,19 +204,21 @@ if __name__ == "__main__":
                 except IndexError:
                     continue
 
-                # Outputting picture
-                text = handshape_detector.get_handshape(mp_hands.history[-1])
-                pts = np.int32(relative_to_absolute(np.asarray(mp_hands.history)[:, 8], w, h))
+            # 4. Showing the image result =====================================
+            img = mp_hands.render(image, results) # Overlaying the mediapipe "skeleton"
+            if mp_hands.history:
+                # Drawing the finger path
+                pts = np.int32(relative_to_absolute(np.asarray(mp_hands.history)[:, LANDMARK.INDEX_FINGER_TIP], w, h))
                 img = cv2.polylines(img, [pts.reshape((-1, 1, 2))], isClosed=False, color=curr_colour)
             
             cv2.putText(img, text, (10,450), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 0), 2, cv2.LINE_AA)
-            cv2.imshow('MediaPipe Hands', img)
+            cv2.imshow('Swipe', img)
 
+            # =================================================================
             if cv2.waitKey(5) & 0xFF == 27:
                 break
 
             time.sleep(frame_delay)
-
     except:  
         mp_hands.close()
         cap.release()
