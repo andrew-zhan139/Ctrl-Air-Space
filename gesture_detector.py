@@ -12,6 +12,7 @@ import time
 import matplotlib.pyplot as plt
 from sklearn import neighbors
 import pickle
+import os
 
 # Enum that can be used as numbers (e.g. LANDMARK.WRIST is 0)
 LANDMARK  = mp.solutions.hands.HandLandmark  
@@ -57,7 +58,7 @@ class HandShapeDetector:
             with open(os.path.join(data_folder, datafile), 'rb') as f:
                 self.labels.append(datafile[5:-2])
                 data = pickle.load(f)
-                for i, hand in enumerate(data):
+                for hand in data:
                     training_x.append(self.process_input(hand))
                     training_y.append(i)
         training_x = np.array(training_x)
@@ -70,11 +71,9 @@ class HandShapeDetector:
         """ Normalized about the wrist and flatten """
         return (hand - hand[0]).flatten()
   
-    def get_shape(self, hand):
+    def get_handshape(self, hand):
         prediction = self.clf.predict(np.expand_dims(self.process_input(hand), 0))
-        return self.labels[prediction]
-
-
+        return self.labels[int(prediction)]
 
 
 
@@ -151,6 +150,7 @@ if __name__ == "__main__":
         cross_axis_thresh=0.2,
         cooldown=1
     )
+    handshape_detector = HandShapeDetector("data")
     curr_colour = np.random.uniform(0, 255, 3)
 
     previous_swipe_time = -100000 
@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
             # Showing the results
             img = mp_hands.render(image, results)
-
+            text = ""
             if mp_hands.history:
                 # print("Gesture:", gesture_detector.history[-1][8])
                 try:
@@ -185,7 +185,7 @@ if __name__ == "__main__":
                     continue
 
                 # Outputting picture
-                text = "test"
+                text = handshape_detector.get_handshape(mp_hands.history[-1])
                 pts = np.int32(relative_to_absolute(np.asarray(mp_hands.history)[:, 8], w, h))
                 img = cv2.polylines(img, [pts.reshape((-1, 1, 2))], isClosed=False, color=curr_colour)
             
