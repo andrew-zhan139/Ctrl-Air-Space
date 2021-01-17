@@ -99,6 +99,8 @@ class GestureDetector:
             self.state = "scroll"
         elif is_hand("spiderman", self.history, 8) and not self.state == "scroll":
             self.state = "volume"
+        elif is_hand("call", self.history, 8):
+            self.state = "audio"
 
         if self.state == "scroll" or self.state == "volume":
             self.scroll_height = 1 - landmarks[LANDMARK.MIDDLE_FINGER_MCP][1]

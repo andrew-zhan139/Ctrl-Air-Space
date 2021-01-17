@@ -3,6 +3,7 @@ import mediapipe as mp
 import pyautogui as gui
 import keyboard
 
+import speech_input
 import gesture_detector
 
 gui.FAILSAFE = False
@@ -39,6 +40,9 @@ while cap.isOpened():
         if gd.is_click:
             gui.click()
             gd.is_click = False
+
+        if gd.state == "audio":
+            from_mic()
 
         if gd.state == "volume":
             if gd.scroll_height > 0.5:
