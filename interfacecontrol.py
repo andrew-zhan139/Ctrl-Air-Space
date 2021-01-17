@@ -38,6 +38,28 @@ while cap.isOpened():
             gui.moveTo(relativeX, relativeY, _pause=False)
         if gd.is_click:
             gui.click()
+            gd.is_click = False
+
+        if gd.state == "volume":
+            if gd.scroll_height > 0.5:
+                gui.press('volumeup',  _pause=False)
+            else:
+                gui.press('volumedown', _pause=False)
+
+        if gd.state == "scroll":
+            SCROLLSENSE = 38
+            if gd.scroll_height > 0.5:
+                gui.scroll(int(gd.scroll_height * SCROLLSENSE), _pause=False)
+            else:
+                gui.scroll(int(gd.scroll_height * -SCROLLSENSE), _pause=False)
+
+        if gd.state == "swipe-left" or gd.state == "swipe-right":
+            gui.hotkey('alt', 'tab')
+            gd.state = "none"
+
+        if gd.state == "swipe-up" or gd.state == "swipe-down":
+            gui.hotkey('alt', 'shift', 'tab', _pause=False)
+            gd.state = "none"
 
         # print(fingertip)
 

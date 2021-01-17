@@ -17,6 +17,11 @@ import os
 # Enum that can be used as numbers (e.g. LANDMARK.WRIST is 0)
 LANDMARK = mp.solutions.hands.HandLandmark
 
+def get_centroid(hand):
+    return np.mean(hand, axis=0)
+
+def get_click_approx(hand):
+    return (hand[0] + hand[5]) / 2
 
 class SwipeDetector:
     def __init__(self, window, main_axis_thresh, cross_axis_thresh, cooldown):
@@ -81,18 +86,18 @@ class GestureDetector:
         self.history = collections.deque(maxlen=100)
         self.swipe_detector = SwipeDetector(
             window=10,
-            main_axis_thresh=0.5,
+            main_axis_thresh=0.45,
             cross_axis_thresh=0.2,
-            cooldown=0.5
+            cooldown=1.0
         )
 
     def run(self, hand, landmarks, i_history):
         self.is_click = False
         self.history.append(hand)
         # Two-finger ================================
-        if is_hand("peace", self.history, 5) and not self.state == "volume":
+        if is_hand("peace", self.history, 8) and not self.state == "volume":
             self.state = "scroll"
-        elif is_hand("spiderman", self.history, 5) and not self.state == "scroll":
+        elif is_hand("spiderman", self.history, 8) and not self.state == "scroll":
             self.state = "volume"
 
         if self.state == "scroll" or self.state == "volume":
@@ -120,7 +125,7 @@ class GestureDetector:
             # Mouse ============================================
             elif is_hand(["palm-open", "palm-closed"], self.history, 5):
                 self.state = "mouse"
-            elif is_hand("fist", self.history, 2):
+            elif is_hand("fist", self.history, 5):
                 self.is_click = True
             else:
                 self.state = "none"
@@ -172,7 +177,7 @@ def landmark_to_array(multi_hand_landmark):
 
 
 class MPHands:
-    def __init__(self, buffer_size=None, track_missing_thresh=2):
+    def __init__(self, buffer_size=None, track_missing_thresh=3):
         self.hands = mp.solutions.hands.Hands(
             min_detection_confidence=0.75,
             min_tracking_confidence=0.9
@@ -271,7 +276,7 @@ if __name__ == "__main__":
                 text = hand_shape
 
                 # Gesture
-                gesture_detector.run(hand_shape, mp_hands.history[-1])
+                gesture_detector.run(hand_shape, mp_hands.history[-1], mp_hands.history)
 
                 # # Hand Swipe -------------------------------
                 # try:
@@ -308,7 +313,7 @@ if __name__ == "__main__":
             if cv2.waitKey(5) & 0xFF == 27:
                 break
 
-            time.sleep(frame_delay)
+            #time.sleep(frame_delay)
     except:
         mp_hands.close()
         cap.release()
