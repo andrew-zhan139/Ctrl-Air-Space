@@ -81,8 +81,8 @@ class GestureDetector:
             self.state = "none"
         
         if self.state == "mouse":
-            print(landmarks[LANDMARK.INDEX_FINGER_TIP], landmarks[LANDMARK.THUMB_TIP])
-            if np.linalg.norm(landmarks[LANDMARK.INDEX_FINGER_TIP] - landmarks[LANDMARK.THUMB_TIP]) < 0.08:
+            #print(landmarks[LANDMARK.INDEX_FINGER_TIP], landmarks[LANDMARK.THUMB_TIP])
+            if np.linalg.norm(landmarks[LANDMARK.INDEX_FINGER_TIP] - landmarks[LANDMARK.THUMB_TIP]) < 0.03:
                 self.is_click = True
             else:
                 self.is_click = False
@@ -251,7 +251,7 @@ if __name__ == "__main__":
             if cv2.waitKey(5) & 0xFF == 27:
                 break
 
-            time.sleep(frame_delay)
+            #time.sleep(frame_delay)
     except:  
         mp_hands.close()
         cap.release()
