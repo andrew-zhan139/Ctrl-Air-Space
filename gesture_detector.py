@@ -58,6 +58,35 @@ class SwipeDetector:
                 return 0
 
 
+def is_hand(hand_of_interest, history, window):
+    history_array = np.asarray(history)
+    return all(hand == hand_of_interest for hand in history_array[-int(window):])
+
+
+class GestureDetector:
+    """ Will encompass point, swipe, etc."""
+    def __init__(self, window):
+        self.state = "none"
+        self.is_click = False # Only use when state is "mouse"
+        self.history = collections.deque(maxlen=100)
+
+        # self.click_cooldown = 1
+        # self.previous_click = -np.inf
+
+    def run(self, hand, landmarks):
+        self.history.append(hand)
+        if is_hand("point", self.history, 5):
+            self.state = "mouse"
+        else:
+            self.state = "none"
+        
+        if self.state == "mouse":
+            print(landmarks[LANDMARK.INDEX_FINGER_TIP], landmarks[LANDMARK.THUMB_TIP])
+            if np.linalg.norm(landmarks[LANDMARK.INDEX_FINGER_TIP] - landmarks[LANDMARK.THUMB_TIP]) < 0.08:
+                self.is_click = True
+            else:
+                self.is_click = False
+        
 class HandShapeDetector:
     def __init__(self, data_folder, n_neighbours=15):
         self.labels = []
@@ -121,7 +150,6 @@ class MPHands:
         if results.multi_hand_landmarks:
             results_array = landmark_to_array(results.multi_hand_landmarks[0]) # Relative coords
             self._update_history(results_array)
-            print("!")
         # else:
         #     try:
         #         self._update_history(self.history[-1])
@@ -169,10 +197,12 @@ if __name__ == "__main__":
         cooldown=0.5
     )
     handshape_detector = HandShapeDetector("data")
+    gesture_detector = GestureDetector(5)
 
     try:
         cap = cv2.VideoCapture(0)
         while cap.isOpened():
+            print(gesture_detector.state, gesture_detector.is_click)
             # 1. Get image ====================================================
             success, image = cap.read()
             if not success:
@@ -189,20 +219,23 @@ if __name__ == "__main__":
                 hand_shape = handshape_detector.get_handshape(mp_hands.history[-1])
                 text = hand_shape
 
+                # Gesture
+                gesture_detector.run(hand_shape, mp_hands.history[-1])
+
                 # Hand Swipe -------------------------------
-                try:
-                    h_swipe = swipe_detector.get_swipe(0, mp_hands.history)
-                    v_swipe = swipe_detector.get_swipe(1, mp_hands.history)
-                    if h_swipe != 0:
-                        print(f"SWIPED {'left' if h_swipe == -1 else 'right'}!!!!!!!!!!!!")
-                        curr_colour = np.random.uniform(0, 255, 3)
-                        previous_swipe_time = time.time()
-                    elif v_swipe != 0:
-                        print(f"SWIPED {'up' if v_swipe == -1 else 'down'}!!!!!!!!!!!!")
-                        curr_colour = np.random.uniform(0, 255, 3)
-                        previous_swipe_time = time.time()
-                except IndexError:
-                    continue
+                # try:
+                #     h_swipe = swipe_detector.get_swipe(0, mp_hands.history)
+                #     v_swipe = swipe_detector.get_swipe(1, mp_hands.history)
+                #     if h_swipe != 0:
+                #         print(f"SWIPED {'left' if h_swipe == -1 else 'right'}!!!!!!!!!!!!")
+                #         curr_colour = np.random.uniform(0, 255, 3)
+                #         previous_swipe_time = time.time()
+                #     elif v_swipe != 0:
+                #         print(f"SWIPED {'up' if v_swipe == -1 else 'down'}!!!!!!!!!!!!")
+                #         curr_colour = np.random.uniform(0, 255, 3)
+                #         previous_swipe_time = time.time()
+                # except IndexError:
+                #     continue
 
             # 4. Showing the image result =====================================
             img = mp_hands.render(image, results) # Overlaying the mediapipe "skeleton"

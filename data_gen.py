@@ -20,7 +20,7 @@ if __name__ == "__main__":
     data = {}
     current_shape_id = 0
     num_data_points_per_shape = 200
-    hand_shapes = ["palm-closed", "palm-open", "flat", "call", "fist", "pinch"]
+    hand_shapes = ["point", "peace"]
     pause_time = 5
     for shape in hand_shapes:
         data[shape] = []
