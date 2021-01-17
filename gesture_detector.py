@@ -86,7 +86,7 @@ class GestureDetector:
             cooldown=0.5
         )
 
-    def run(self, hand, landmarks):
+    def run(self, hand, landmarks, i_history):
         self.is_click = False
         self.history.append(hand)
         # Two-finger ================================
@@ -103,8 +103,8 @@ class GestureDetector:
         else:
             # Swipe ====================================
             try:
-                h_swipe = swipe_detector.get_swipe(0, mp_hands.history)
-                v_swipe = swipe_detector.get_swipe(1, mp_hands.history)
+                h_swipe = self.swipe_detector.get_swipe(0, i_history)
+                v_swipe = self.swipe_detector.get_swipe(1, i_history)
             except IndexError:
                 h_swipe = 0
                 v_swipe = 0
