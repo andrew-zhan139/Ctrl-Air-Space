@@ -5,7 +5,10 @@ class GestureMatcher extends React.Component {
         return (
             <header className="Gesture-Matcher">
                 <div className = "card">
-                    <h1 className="gesture-matcher">Welcome to the settings: Set your correponsing air gesture preferences here and save.</h1>
+                    <text className="gesture-matcher">Welcome to the settings: Set your corresponding air gesture preferences here and save them.</text>
+                    <br></br>
+                    <br></br>
+                    <h1>Actions</h1>
                 </div>
             </header>
         );
