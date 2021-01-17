@@ -47,8 +47,9 @@ export default function MediaCard({gestureDescription, setcommand, set, theges, 
         </CardContent>
       </CardActionArea>
       <CardActions>
+        <div className="defaultMotion">
         {(set === 2)? <DropDown setcommand={setcommand} selectedOptions={selectedOptions} drop={drop} setSelected={setSelected}/>: <Typography variant="standard" color="textSecondary" component="p">    {set}</Typography>}
-        
+        </div>
         </CardActions>
     </Card>
   );

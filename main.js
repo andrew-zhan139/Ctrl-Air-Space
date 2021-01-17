@@ -6,7 +6,7 @@ const isDev = !app.isPackaged;
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 1200,
+    width: 1150,
     height: 800,
     backgroundColor: '#202020',
     webPreferences: {
