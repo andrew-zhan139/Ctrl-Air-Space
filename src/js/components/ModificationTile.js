@@ -34,7 +34,7 @@ export default function MediaCard({thepath, actionName, actionDescription}) {
           title="Finger"
         />
         <CardContent>
-          <Typography gutterBottom variant="h5" component="h2">
+          <Typography gutterBottom variant="h5" component="h2" color="secondary">
             {actionName}
           </Typography>
           <Typography variant="body2" color="textSecondary" component="p">
