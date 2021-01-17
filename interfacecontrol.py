@@ -29,7 +29,7 @@ while cap.isOpened():
         # get hand shape
         hshape = hd.get_handshape(hands.history[-1])
         gd.run(hshape, hands.history[-1], hands.history)
-        print(hshape, gd.state, gd.is_click, gd.scroll_height)
+        #print(hshape, gd.state, gd.is_click, gd.scroll_height)
         if gd.state == "mouse":
             fingertip = hands.history[-1][gesture_detector.LANDMARK.INDEX_FINGER_TIP]
             SENSE = 1.5
