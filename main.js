@@ -10,7 +10,7 @@ function createWindow() {
     height: 800,
     backgroundColor: '#121212',
     webPreferences: {
-      nodeIntegration: false,
+      nodeIntegration: true,
       worldSafeExecuteJavaScript: true,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
@@ -30,4 +30,5 @@ ipcMain.on('notify', (_, message) => {
   new Notification({title: 'Changes Saved', body: message}).show();
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(createWindow);
+
