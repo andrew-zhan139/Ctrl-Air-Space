@@ -21,24 +21,28 @@ const useStyles = makeStyles({
   },
 });
 
+
 export default function MediaCard({setcommand, set, theges, thepath, selectedOptions, drop, setSelected}) {
+
   const classes = useStyles();
   return (
     <Card className={classes.root}>
       <CardActionArea>
         <CardMedia
           component="img"
-          height="440"
-          width="140"
+          height="250"
+          width="350"
           src={thepath}
           title="Finger"
         />
         <CardContent>
+
           <Typography gutterBottom variant="h5" component="h2">
             {theges}
+
           </Typography>
           <Typography variant="body2" color="textSecondary" component="p">
-            Gesture action description.
+            {actionDescription}
           </Typography>
         </CardContent>
       </CardActionArea>

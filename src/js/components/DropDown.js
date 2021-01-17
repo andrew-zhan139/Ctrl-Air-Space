@@ -9,7 +9,7 @@ import Select from '@material-ui/core/Select';
 const useStyles = makeStyles((theme) => ({
   formControl: {
     margin: theme.spacing(1),
-    minWidth: 200,
+    minWidth: 250,
   },
   selectEmpty: {
     marginTop: theme.spacing(2),
@@ -27,12 +27,13 @@ export default function SimpleSelect({setcommand, selectedOptions, drop, setSele
 
   return (
     <div className ="dropdowncolour"> {/* errrrr*/}
-      <FormControl variant="standard" className={classes.formControl}>
-        <InputLabel id="demo-simple-select-outlined-label"> Select Gesture</InputLabel>
+      <FormControl variant="outlined" className={classes.formControl}>
+        <InputLabel id="demo-simple-select-outlined-label" color="secondary" > Select Gesture</InputLabel>
         <Select
           labelId="demo-simple-select-outlined-label"
           id="demo-simple-select-outlined"
           
+
           value={gesture}
           onChange={handleChange}
           label="Gesture"
@@ -40,8 +41,10 @@ export default function SimpleSelect({setcommand, selectedOptions, drop, setSele
           <MenuItem value="">
             <em>None</em>
           </MenuItem>
+
           <MenuItem value={10}>Volume Mode</MenuItem>
           <MenuItem value={20}>Scroll</MenuItem>
+
 
         </Select>
       </FormControl>
