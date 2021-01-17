@@ -22,7 +22,7 @@ const useStyles = makeStyles({
 });
 
 
-export default function MediaCard({setcommand, set, theges, thepath, selectedOptions, drop, setSelected}) {
+export default function MediaCard({gestureDescription, setcommand, set, theges, thepath, selectedOptions, drop, setSelected}) {
 
   const classes = useStyles();
   return (
@@ -37,12 +37,12 @@ export default function MediaCard({setcommand, set, theges, thepath, selectedOpt
         />
         <CardContent>
 
-          <Typography gutterBottom variant="h5" component="h2">
+          <Typography color="secondary" gutterBottom variant="h5" component="h2">
             {theges}
 
           </Typography>
           <Typography variant="body2" color="textSecondary" component="p">
-            {actionDescription}
+            {gestureDescription}
           </Typography>
         </CardContent>
       </CardActionArea>

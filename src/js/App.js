@@ -42,12 +42,12 @@ return (
       <GestureMatcher />
 
   <div className="modification-tiles">
-      <ModificationTile setcommand={setRock} className="modification-indv-tile" set={"Mouse Movement"} theges={"Palm"} setSelected={setSelected} thepath={thepath1} selectedOptions={selectedOptions}/>
-      <ModificationTile setcommand={setRock} className="modification-indv-tile"set={"Click"} theges={"Palm Open, Palm Close"} setSelected={setSelected} thepath={thepath1} selectedOptions={selectedOptions}/>
-      <ModificationTile setcommand={setRock} className="modification-indv-tile" set={2} theges={"Rock"} setSelected={setSelected} thepath={thepath2} selectedOptions={selectedOptions}/>
-      <ModificationTile setcommand={setPeace} className="modification-indv-tile" set={2} theges={"Peace"} setSelected={setSelected} thepath={thepath1} selectedOptions={selectedOptions}/>
-      <ModificationTile setcommand={setRock} className="modification-indv-tile" set={"Change Tabs"} theges={"Slap"} setSelected={setSelected} thepath={thepath2} selectedOptions={selectedOptions}/>
-      <ModificationTile setcommand={setRock} className="modification-indv-tile" set={"Speech Input"} theges={"Call"}setSelected={setSelected} thepath={thepath1} selectedOptions={selectedOptions}/>
+      <ModificationTile setcommand={setRock} className="modification-indv-tile" set={"Mouse Movement"} theges={"Palm"} gestureDescription={"Move palm to control the mouse"} setSelected={setSelected} thepath={thepath1} selectedOptions={selectedOptions}/>
+      <ModificationTile setcommand={setRock} className="modification-indv-tile"set={"Click"} theges={"Palm Open, Palm Close"} gestureDescription={"Go from open to close palm to click"} setSelected={setSelected} thepath={thepath1} selectedOptions={selectedOptions}/>
+      <ModificationTile setcommand={setRock} className="modification-indv-tile" set={2} theges={"Rock"} gestureDescription={"Do the rock sign to perform associated action"} setSelected={setSelected} thepath={thepath2} selectedOptions={selectedOptions}/>
+      <ModificationTile setcommand={setPeace} className="modification-indv-tile" set={2} theges={"Peace"} gestureDescription={"Do the peace sign to perform associated action"} setSelected={setSelected} thepath={thepath1} selectedOptions={selectedOptions}/>
+      <ModificationTile setcommand={setRock} className="modification-indv-tile" set={"Change Tabs"} gestureDescription={""} theges={"Swipe"} gestureDescription={"Perform horizontal swipe to switch between two windows and vertical swipe to shift between all windows"} setSelected={setSelected} thepath={thepath2} selectedOptions={selectedOptions}/>
+      <ModificationTile setcommand={setRock} className="modification-indv-tile" set={"Speech Input"} theges={"Call"} gestureDescription={"Make call sign to activate voice input"} setSelected={setSelected} thepath={thepath1} selectedOptions={selectedOptions}/>
       </div>
 
       <div>
