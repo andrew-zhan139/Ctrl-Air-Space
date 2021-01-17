@@ -28,8 +28,8 @@ export default function MediaCard({thepath, actionName, actionDescription}) {
       <CardActionArea>
         <CardMedia
           component="img"
-          height="200"
-          width="300"
+          height="250"
+          width="350"
           src={thepath}
           title="Finger"
         />
