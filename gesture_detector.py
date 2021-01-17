@@ -107,6 +107,8 @@ class GestureDetector:
             if is_hand(["palm-open", "palm-closed"], self.history, 5): # Only palm can deactivate
                 self.state = "none"
                 self.scroll_height = -1
+        elif self.state == "audio":
+            pass
         else:
             # Swipe ====================================
             try:

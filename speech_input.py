@@ -13,6 +13,7 @@ def from_mic():
     pyautogui.typewrite('\n')
     #return(result.text)
 
-
+if __name__ == "__main__":
+    from_mic()
     
 #from_mic()

@@ -30,7 +30,7 @@ while cap.isOpened():
         # get hand shape
         hshape = hd.get_handshape(hands.history[-1])
         gd.run(hshape, hands.history[-1], hands.history)
-        #print(hshape, gd.state, gd.is_click, gd.scroll_height)
+        print(gd.state, gd.is_click, gd.scroll_height, hshape)
         if gd.state == "mouse":
             fingertip = hands.history[-1][gesture_detector.LANDMARK.INDEX_FINGER_TIP]
             SENSE = 1.5
@@ -42,7 +42,7 @@ while cap.isOpened():
             gd.is_click = False
 
         if gd.state == "audio":
-            from_mic()
+            speech_input.from_mic()
 
         if gd.state == "volume":
             if gd.scroll_height > 0.5:
