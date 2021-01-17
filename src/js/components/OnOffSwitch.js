@@ -5,8 +5,7 @@ import Switch from '@material-ui/core/Switch';
 
 export default function SwitchLabels() {
   const [state, setState] = React.useState({
-    checkedA: true,
-    checkedB: true,
+    enabled: true,
   });
 
   const handleChange = (event) => {
@@ -16,8 +15,10 @@ export default function SwitchLabels() {
   return (
     <FormGroup row>
       <FormControlLabel
-        control={<Switch checked={state.checkedA} onChange={handleChange} name="checkedA" />}
-        label="Secondary"
+        control={<Switch inputProps={{ 'aria-label': 'primary checkbox' }}
+          checked={state.enabled} onChange={handleChange} name="enabled" />}
+        label="Enable Gestures"
+        labelPlacement = "start"
       />
     </FormGroup>
   );

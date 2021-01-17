@@ -16,12 +16,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function SimpleSelect() {
+export default function SimpleSelect(prop) {
   const classes = useStyles();
-  const [age, setAge] = React.useState('');
+  const [gesture, setGesture] = React.useState('');
 
   const handleChange = (event) => {
-    setAge(event.target.value);
+    setGesture(event.target.value);
   };
 
   return (
@@ -32,19 +32,21 @@ export default function SimpleSelect() {
           labelId="demo-simple-select-outlined-label"
           id="demo-simple-select-outlined"
           
-          value={age}
+          value={gesture}
           onChange={handleChange}
-          label="Age"
+          label="Gesture"
         >
           <MenuItem value="">
             <em>None</em>
           </MenuItem>
-          <MenuItem value={10}>Ten</MenuItem>
-          <MenuItem value={20}>Twenty</MenuItem>
-          <MenuItem value={30}>Thirty</MenuItem>
+          <MenuItem value={10}>Fist</MenuItem>
+          <MenuItem value={20}>Call</MenuItem>
+          <MenuItem value={30}>Pinch</MenuItem>
+          <MenuItem value={30}>Flat</MenuItem>
+          <MenuItem value={30}>Closed-Palm</MenuItem>
+          <MenuItem value={30}>Open-Palm</MenuItem>
         </Select>
       </FormControl>
-  
     </div>
   );
 }

@@ -10,26 +10,37 @@ import ModificationTile from './components/ModificationTile';
 
 export default function App() {
 
+  const Actions = ["Open Window", "Close Window", "Volume Control"];
+  
   return (
     <>
       <h1>Ctrl+Air.Space</h1>
       <h2></h2>
       <GestureMatcher />
-      <div className="gestures">
+      {/*<div className="gestures">
         <DropDown />
         <DropDown />
         <DropDown />
         <DropDown />
         <DropDown />
         <DropDown />
-      </div>
+  </div>*/}
+  <div className="modification-tiles">
+      <ModificationTile actionName={'action sample'}/>
+      <ModificationTile />
+      <ModificationTile />
+      <ModificationTile />
+      <ModificationTile />
+      <ModificationTile />
+      <ModificationTile />
+      <ModificationTile /> </div>
       <div>
         <OnOffSwitch />
       </div>
-      <Button onClick={() => {
+      <Button variant="contained" color="primary" onClick={() => {
         electron.notificationApi.sendNotification('Your gesture preferences have been updated.');
-      }}>Save</Button>
-      <ModificationTile />
+      }}>Save Preferences</Button>
+      
     </>
   )
 }

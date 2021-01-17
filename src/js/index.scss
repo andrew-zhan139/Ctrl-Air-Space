@@ -1,3 +1,4 @@
+
 .card{
   background-color: white;
 }
@@ -7,11 +8,13 @@ h1 {
 .gesture-matcher {
   color: red;
 }
-.select{
-  color: black;
-}
 
 .gestures {
   display: flex;
+  justify-content: space-between;
+}
+
+.modification-tiles {
+  //display: flex;
   justify-content: space-between;
 }
