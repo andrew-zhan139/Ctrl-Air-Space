@@ -10,6 +10,8 @@ import collections
 import numpy as np
 import time
 import matplotlib.pyplot as plt
+from sklearn import neighbors
+import pickle
 
 # Enum that can be used as numbers (e.g. LANDMARK.WRIST is 0)
 LANDMARK  = mp.solutions.hands.HandLandmark  
@@ -42,10 +44,39 @@ class SwipeDetector:
             else:
                 return 0
 
-class Gestures:
-    @staticmethod
-    def is_call(history):
-        pass
+
+class HandShapeDetector:
+    def __init__(self, data_folder, n_neighbours=15):
+        self.labels = []
+
+        # Get training set
+        training_x = []
+        training_y = []
+        for i, datafile in enumerate(os.listdir(data_folder)): 
+            print(f"Loading {datafile}")
+            with open(os.path.join(data_folder, datafile), 'rb') as f:
+                self.labels.append(datafile[5:-2])
+                data = pickle.load(f)
+                for i, hand in enumerate(data):
+                    training_x.append(self.process_input(hand))
+                    training_y.append(i)
+        training_x = np.array(training_x)
+
+        # Train the KNN classifier
+        self.clf = neighbors.KNeighborsClassifier(n_neighbours)
+        self.clf.fit(training_x, training_y)
+    
+    def process_input(self, hand):
+        """ Normalized about the wrist and flatten """
+        return (hand - hand[0]).flatten()
+  
+    def get_shape(self, hand):
+        prediction = self.clf.predict(np.expand_dims(self.process_input(hand), 0))
+        return self.labels[prediction]
+
+
+
+
 
 def relative_to_absolute(relative, img_width, img_height):
     return relative @ np.diag([img_height, img_width])
@@ -152,9 +183,13 @@ if __name__ == "__main__":
                         previous_swipe_time = time.time()
                 except IndexError:
                     continue
+
+                # Outputting picture
+                text = "test"
                 pts = np.int32(relative_to_absolute(np.asarray(mp_hands.history)[:, 8], w, h))
                 img = cv2.polylines(img, [pts.reshape((-1, 1, 2))], isClosed=False, color=curr_colour)
             
+            cv2.putText(img, text, (10,450), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 0), 2, cv2.LINE_AA)
             cv2.imshow('MediaPipe Hands', img)
 
             if cv2.waitKey(5) & 0xFF == 27:
