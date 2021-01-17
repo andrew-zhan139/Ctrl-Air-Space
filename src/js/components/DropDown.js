@@ -16,12 +16,13 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function SimpleSelect(prop) {
+export default function SimpleSelect({setcommand, selectedOptions, drop, setSelected}) {
   const classes = useStyles();
   const [gesture, setGesture] = React.useState('');
 
   const handleChange = (event) => {
     setGesture(event.target.value);
+    setcommand(gesture);
   };
 
   return (
@@ -40,12 +41,11 @@ export default function SimpleSelect(prop) {
           <MenuItem value="">
             <em>None</em>
           </MenuItem>
-          <MenuItem value={10}>Fist</MenuItem>
-          <MenuItem value={20}>Call</MenuItem>
-          <MenuItem value={30}>Pinch</MenuItem>
-          <MenuItem value={40}>Flat</MenuItem>
-          <MenuItem value={50}>Closed-Palm</MenuItem>
-          <MenuItem value={60}>Open-Palm</MenuItem>
+
+          <MenuItem value={10}>Volume Mode</MenuItem>
+          <MenuItem value={20}>Scroll</MenuItem>
+
+
         </Select>
       </FormControl>
     </div>

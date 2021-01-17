@@ -21,7 +21,9 @@ const useStyles = makeStyles({
   },
 });
 
-export default function MediaCard({thepath, actionName, actionDescription}) {
+
+export default function MediaCard({setcommand, set, theges, thepath, selectedOptions, drop, setSelected}) {
+
   const classes = useStyles();
   return (
     <Card className={classes.root}>
@@ -34,8 +36,10 @@ export default function MediaCard({thepath, actionName, actionDescription}) {
           title="Finger"
         />
         <CardContent>
-          <Typography gutterBottom variant="h5" component="h2" color="secondary">
-            {actionName}
+
+          <Typography gutterBottom variant="h5" component="h2">
+            {theges}
+
           </Typography>
           <Typography variant="body2" color="textSecondary" component="p">
             {actionDescription}
@@ -43,7 +47,8 @@ export default function MediaCard({thepath, actionName, actionDescription}) {
         </CardContent>
       </CardActionArea>
       <CardActions>
-        <DropDown />
+        {(set === 2)? <DropDown setcommand={setcommand} selectedOptions={selectedOptions} drop={drop} setSelected={setSelected}/>: <Typography variant="standard" color="textSecondary" component="p">    {set}</Typography>}
+        
         </CardActions>
     </Card>
   );
