@@ -301,7 +301,7 @@ if __name__ == "__main__":
             if mp_hands.history:
                 # Drawing the finger path
                 pts = np.int32(relative_to_absolute(np.asarray(
-                    mp_hands.history)[:, LANDMARK.INDEX_FINGER_TIP], w, h))
+                    [get_click_approx(p) for p in mp_hands.history]), w, h))
                 img = cv2.polylines(
                     img, [pts.reshape((-1, 1, 2))], isClosed=False, color=curr_colour)
 
