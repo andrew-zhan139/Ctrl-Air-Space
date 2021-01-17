@@ -26,12 +26,13 @@ export default function SimpleSelect(prop) {
 
   return (
     <div className ="dropdowncolour"> {/* errrrr*/}
-      <FormControl variant="standard" className={classes.formControl}>
-        <InputLabel id="demo-simple-select-outlined-label"> Select Gesture</InputLabel>
+      <FormControl variant="outlined" className={classes.formControl}>
+        <InputLabel id="demo-simple-select-outlined-label" color="secondary" > Select Gesture</InputLabel>
         <Select
           labelId="demo-simple-select-outlined-label"
           id="demo-simple-select-outlined"
           
+
           value={gesture}
           onChange={handleChange}
           label="Gesture"
