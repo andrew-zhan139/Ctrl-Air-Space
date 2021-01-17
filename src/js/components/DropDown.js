@@ -43,9 +43,9 @@ export default function SimpleSelect(prop) {
           <MenuItem value={10}>Fist</MenuItem>
           <MenuItem value={20}>Call</MenuItem>
           <MenuItem value={30}>Pinch</MenuItem>
-          <MenuItem value={30}>Flat</MenuItem>
-          <MenuItem value={30}>Closed-Palm</MenuItem>
-          <MenuItem value={30}>Open-Palm</MenuItem>
+          <MenuItem value={40}>Flat</MenuItem>
+          <MenuItem value={50}>Closed-Palm</MenuItem>
+          <MenuItem value={60}>Open-Palm</MenuItem>
         </Select>
       </FormControl>
     </div>
