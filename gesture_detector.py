@@ -15,15 +15,15 @@ import pickle
 import os
 
 # Enum that can be used as numbers (e.g. LANDMARK.WRIST is 0)
-LANDMARK  = mp.solutions.hands.HandLandmark  
+LANDMARK = mp.solutions.hands.HandLandmark
 
 
 class SwipeDetector:
     def __init__(self, window, main_axis_thresh, cross_axis_thresh, cooldown):
         self.window = window
-        self.main_axis_thresh = main_axis_thresh # Relative coords
-        self.cross_axis_thresh = cross_axis_thresh # Relative coords
-        self.cooldown = cooldown # Number of seconds
+        self.main_axis_thresh = main_axis_thresh  # Relative coords
+        self.cross_axis_thresh = cross_axis_thresh  # Relative coords
+        self.cooldown = cooldown  # Number of seconds
         self.vicinity_thresh = main_axis_thresh * 0.25
 
         self.previous_swipe_time = -np.inf
@@ -35,11 +35,11 @@ class SwipeDetector:
         For axis=1: -1 is up, 1 is down, 0 is no swipe
         """
 
-        if time.time() - self.previous_swipe_time < self.cooldown: # Check cooldown
+        if time.time() - self.previous_swipe_time < self.cooldown:  # Check cooldown
             return 0
         elif np.linalg.norm(
             self.previous_location - history[-1][LANDMARK.INDEX_FINGER_TIP]
-        ) < self.vicinity_thresh: # Check if swipe registered yet
+        ) < self.vicinity_thresh:  # Check if swipe registered yet
             return 0
         # elif np.linalg.norm(
         #     history[-int(self.window)][LANDMARK.INDEX_FINGER_TIP] - history[-int(self.window* 0.25)][LANDMARK.INDEX_FINGER_TIP]
@@ -48,12 +48,16 @@ class SwipeDetector:
         else:
             main_axis = axis
             cross_axis = 0 if axis == 1 else 1
-            main = history[-1][LANDMARK.INDEX_FINGER_TIP, main_axis] - history[-int(self.window)][LANDMARK.INDEX_FINGER_TIP, main_axis] 
-            cross = history[-1][LANDMARK.INDEX_FINGER_TIP, cross_axis] - history[-int(self.window)][LANDMARK.INDEX_FINGER_TIP, cross_axis]
+            main = history[-1][LANDMARK.INDEX_FINGER_TIP, main_axis] - \
+                history[-int(self.window)
+                        ][LANDMARK.INDEX_FINGER_TIP, main_axis]
+            cross = history[-1][LANDMARK.INDEX_FINGER_TIP, cross_axis] - \
+                history[-int(self.window)
+                        ][LANDMARK.INDEX_FINGER_TIP, cross_axis]
             if abs(main) > self.main_axis_thresh and abs(cross) < self.cross_axis_thresh:
                 self.previous_swipe_time = time.time()
                 self.previous_location = history[-1][LANDMARK.INDEX_FINGER_TIP]
-                return -1 if main < 0 else 1 
+                return -1 if main < 0 else 1
             else:
                 return 0
 
@@ -65,28 +69,28 @@ def is_hand(hand_of_interest, history, window):
 
 class GestureDetector:
     """ Will encompass point, swipe, etc."""
+
     def __init__(self, window):
         self.state = "none"
-        self.is_click = False # Only use when state is "mouse"
+        self.is_click = False  # Only use when state is "mouse"
         self.history = collections.deque(maxlen=100)
 
         # self.click_cooldown = 1
         # self.previous_click = -np.inf
 
     def run(self, hand, landmarks):
+        self.is_click = False
         self.history.append(hand)
-        if is_hand("point", self.history, 5):
+        if is_hand("palm-open", self.history, 5) or is_hand("palm-closed", self.history, 5):
             self.state = "mouse"
+        elif is_hand("fist", self.history, 2):
+            self.is_click = True
         else:
             self.state = "none"
-        
-        if self.state == "mouse":
             #print(landmarks[LANDMARK.INDEX_FINGER_TIP], landmarks[LANDMARK.THUMB_TIP])
-            if np.linalg.norm(landmarks[LANDMARK.INDEX_FINGER_TIP] - landmarks[LANDMARK.THUMB_TIP]) < 0.03:
-                self.is_click = True
-            else:
-                self.is_click = False
-        
+            # if np.linalg.norm(landmarks[LANDMARK.INDEX_FINGER_TIP] - landmarks[LANDMARK.THUMB_TIP]) < 0.03:
+
+
 class HandShapeDetector:
     def __init__(self, data_folder, n_neighbours=15):
         self.labels = []
@@ -94,7 +98,7 @@ class HandShapeDetector:
         # Get training set
         training_x = []
         training_y = []
-        for i, datafile in enumerate(os.listdir(data_folder)): 
+        for i, datafile in enumerate(os.listdir(data_folder)):
             print(f"Loading {datafile}")
             with open(os.path.join(data_folder, datafile), 'rb') as f:
                 self.labels.append(datafile[5:-2])
@@ -107,32 +111,35 @@ class HandShapeDetector:
         # Train the KNN classifier
         self.clf = neighbors.KNeighborsClassifier(n_neighbours)
         self.clf.fit(training_x, training_y)
-    
+
     def process_input(self, hand):
         """ Normalized about the wrist and flatten """
         return (hand - hand[0]).flatten()
-  
+
     def get_handshape(self, hand):
-        prediction = self.clf.predict(np.expand_dims(self.process_input(hand), 0))
+        prediction = self.clf.predict(
+            np.expand_dims(self.process_input(hand), 0))
         return self.labels[int(prediction)]
 
 
 def relative_to_absolute(relative, img_width, img_height):
     return relative @ np.diag([img_height, img_width])
 
+
 def landmark_to_array(multi_hand_landmark):
     """ e.g. multi_hand_landmark = results.multi_hand_landmarks[0]"""
     # return np.asarray([[pt.x, pt.y, pt.z] for pt in multi_hand_landmark.landmark])
     return np.asarray([[pt.x, pt.y] for pt in multi_hand_landmark.landmark])
 
+
 class MPHands:
     def __init__(self, buffer_size=None):
         self.hands = mp.solutions.hands.Hands(
-            min_detection_confidence=0.75, 
+            min_detection_confidence=0.75,
             min_tracking_confidence=0.9
         )
         self.history = collections.deque(maxlen=buffer_size)
-    
+
     def run(self, img):
         img_width, img_height, _ = img.shape
 
@@ -142,13 +149,14 @@ class MPHands:
         # To improve performance, this will ensure image pass by reference.
         input_img.flags.writeable = False
 
-        # Get mediapipe result 
+        # Get mediapipe result
         results = self.hands.process(input_img)
 
         # Processing results for history
         # (CURRENTLY DEALING WITH ONE HAND) <---------------
         if results.multi_hand_landmarks:
-            results_array = landmark_to_array(results.multi_hand_landmarks[0]) # Relative coords
+            results_array = landmark_to_array(
+                results.multi_hand_landmarks[0])  # Relative coords
             self._update_history(results_array)
         # else:
         #     try:
@@ -160,39 +168,39 @@ class MPHands:
 
     def render(self, image, results):
         # Overlays the mediapipe "skeleton" onto the image
-        flipped = cv2.flip(image, 1) # Flipped to match the results
+        flipped = cv2.flip(image, 1)  # Flipped to match the results
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
                 mp.solutions.drawing_utils.draw_landmarks(
-                    flipped, 
-                    hand_landmarks, 
+                    flipped,
+                    hand_landmarks,
                     mp.solutions.hands.HAND_CONNECTIONS
                 )
         return flipped
-    
+
     def _update_history(self, array):
         # Need to readjust because image is flipped horizontally
-        # readjusted_coords = np.array([1, 0]) - np.multiply(array, [1, -1]) 
+        # readjusted_coords = np.array([1, 0]) - np.multiply(array, [1, -1])
         # self.history.append(readjusted_coords)
         self.history.append(array)
-
 
     def close(self):
         self.hands.close()
 
+
 if __name__ == "__main__":
     frame_delay = 0.05
 
-    swipe_duration = 0.5 # Approx num seconds for swipe to be valid
-    history_window = 0.5 # Num seconds of history to save in the mphands object
-    buffer_size = int(history_window / frame_delay) 
+    swipe_duration = 0.5  # Approx num seconds for swipe to be valid
+    history_window = 0.5  # Num seconds of history to save in the mphands object
+    buffer_size = int(history_window / frame_delay)
     curr_colour = np.random.uniform(0, 255, 3)
     text = ""
 
     mp_hands = MPHands(buffer_size=buffer_size)
     swipe_detector = SwipeDetector(
-        window=swipe_duration / frame_delay, 
-        main_axis_thresh=0.5, 
+        window=swipe_duration / frame_delay,
+        main_axis_thresh=0.5,
         cross_axis_thresh=0.2,
         cooldown=0.5
     )
@@ -214,9 +222,10 @@ if __name__ == "__main__":
             results = mp_hands.run(image)
 
             # 3. Detect gestures ==============================================
-            if mp_hands.history: # Ensures there is history available
+            if mp_hands.history:  # Ensures there is history available
                 # Hand Shape -------------------------------
-                hand_shape = handshape_detector.get_handshape(mp_hands.history[-1])
+                hand_shape = handshape_detector.get_handshape(
+                    mp_hands.history[-1])
                 text = hand_shape
 
                 # Gesture
@@ -238,21 +247,25 @@ if __name__ == "__main__":
                 #     continue
 
             # 4. Showing the image result =====================================
-            img = mp_hands.render(image, results) # Overlaying the mediapipe "skeleton"
+            # Overlaying the mediapipe "skeleton"
+            img = mp_hands.render(image, results)
             if mp_hands.history:
                 # Drawing the finger path
-                pts = np.int32(relative_to_absolute(np.asarray(mp_hands.history)[:, LANDMARK.INDEX_FINGER_TIP], w, h))
-                img = cv2.polylines(img, [pts.reshape((-1, 1, 2))], isClosed=False, color=curr_colour)
-            
-            cv2.putText(img, text, (10,450), cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 255, 0), 2, cv2.LINE_AA)
+                pts = np.int32(relative_to_absolute(np.asarray(
+                    mp_hands.history)[:, LANDMARK.INDEX_FINGER_TIP], w, h))
+                img = cv2.polylines(
+                    img, [pts.reshape((-1, 1, 2))], isClosed=False, color=curr_colour)
+
+            cv2.putText(img, text, (10, 450), cv2.FONT_HERSHEY_SIMPLEX,
+                        3, (0, 255, 0), 2, cv2.LINE_AA)
             cv2.imshow('Swipe', img)
 
             # =================================================================
             if cv2.waitKey(5) & 0xFF == 27:
                 break
 
-            #time.sleep(frame_delay)
-    except:  
+            # time.sleep(frame_delay)
+    except:
         mp_hands.close()
         cap.release()
         raise

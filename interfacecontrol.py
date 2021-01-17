@@ -5,6 +5,8 @@ import keyboard
 
 import gesture_detector
 
+gui.FAILSAFE = False
+
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
@@ -30,14 +32,14 @@ while cap.isOpened():
         print(gd.state, gd.is_click, hshape)
         if gd.state == "mouse":
             fingertip = hands.history[-1][gesture_detector.LANDMARK.INDEX_FINGER_TIP]
-            relativeX = int(fingertip[0] * gui.size()[0])
-            relativeY = int(fingertip[1] * gui.size()[1])
+            SENSE = 1.5
+            relativeX = int(fingertip[0] * gui.size()[0] * SENSE)
+            relativeY = int(fingertip[1] * gui.size()[1] * SENSE)
             gui.moveTo(relativeX, relativeY, _pause=False)
-            if gd.is_click:
-                gui.click()
+        if gd.is_click:
+            gui.click()
 
-        
-        #print(fingertip)
+        # print(fingertip)
 
     if cv2.waitKey(5) & 0xFF == 27:
         break
@@ -58,5 +60,3 @@ while cap.isOpened():
 cv2.destroyAllWindows()
 hands.close()
 cap.release()
-
-
