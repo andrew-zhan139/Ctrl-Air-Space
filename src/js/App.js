@@ -17,7 +17,8 @@ export default function App() {
   return (
     <>
       <GestureMatcher />
-  <div className="modification-tiles">
+      <h1 className ="gestures-title">Gestures</h1>
+      <div className="modification-tiles">
       <ModificationTile className="modification-indv-tile" thepath={thepath1} actionName={'action sample 1'} actionDescription={'action description 1'}/>
       <ModificationTile className="modification-indv-tile" thepath={thepath1} actionName={'action sample 2'} actionDescription={'action description 2'}/>
       <ModificationTile className="modification-indv-tile" thepath={thepath2} actionName={'action sample 3'} actionDescription={'action description 3'}/>
