@@ -1,5 +1,5 @@
-""" 
-Adapted from https://google.github.io/mediapipe/solutions/hands#python-solution-api 
+"""
+Adapted from https://google.github.io/mediapipe/solutions/hands#python-solution-api
 
 The point of the Gesture Detector is to  get gesture from video feed.
 """
@@ -31,7 +31,7 @@ class SwipeDetector:
 
     def get_swipe(self, axis, history):
         """Getting swipe direction
-        For axis=0: -1 is left, 1 is right, 0 is no swipe 
+        For axis=0: -1 is left, 1 is right, 0 is no swipe
         For axis=1: -1 is up, 1 is down, 0 is no swipe
         """
 
@@ -74,14 +74,31 @@ class GestureDetector:
         self.state = "none"
         self.is_click = False  # Only use when state is "mouse"
         self.history = collections.deque(maxlen=100)
-
-        # self.click_cooldown = 1
-        # self.previous_click = -np.inf
+        self.swipe_detector = SwipeDetector(
+            window=10,
+            main_axis_thresh=0.5,
+            cross_axis_thresh=0.2,
+            cooldown=0.5
+        )
 
     def run(self, hand, landmarks):
         self.is_click = False
         self.history.append(hand)
-        if is_hand("palm-open", self.history, 5) or is_hand("palm-closed", self.history, 5):
+        try:
+            h_swipe = swipe_detector.get_swipe(0, mp_hands.history)
+            v_swipe = swipe_detector.get_swipe(1, mp_hands.history)
+        except IndexError:
+            h_swipe = 0
+            v_swipe = 0
+        if h_swipe != 0:
+            direction = 'left' if h_swipe == -1 else 'right'
+            print(f"SWIPED {direction}!")
+            self.state = f"swipe-{direction}"
+        elif v_swipe != 0:
+            direction = 'up' if v_swipe == -1 else 'down'
+            print(f"SWIPED {direction}!")
+            self.state = f"swipe-{direction}"
+        elif is_hand("palm-open", self.history, 5) or is_hand("palm-closed", self.history, 5):
             self.state = "mouse"
         elif is_hand("fist", self.history, 2):
             self.is_click = True
@@ -133,12 +150,15 @@ def landmark_to_array(multi_hand_landmark):
 
 
 class MPHands:
-    def __init__(self, buffer_size=None):
+    def __init__(self, buffer_size=None, track_missing_thresh=2):
         self.hands = mp.solutions.hands.Hands(
             min_detection_confidence=0.75,
             min_tracking_confidence=0.9
         )
         self.history = collections.deque(maxlen=buffer_size)
+
+        self.track_missing_thresh = track_missing_thresh
+        self.track_missing_number = 0
 
     def run(self, img):
         img_width, img_height, _ = img.shape
@@ -157,7 +177,13 @@ class MPHands:
         if results.multi_hand_landmarks:
             results_array = landmark_to_array(
                 results.multi_hand_landmarks[0])  # Relative coords
-            self._update_history(results_array)
+            self.history.append(results_array)
+            self.track_missing_number = 0
+        elif self.track_missing_number < self.track_missing_thresh:
+            self.track_missing_number += 1
+        else:
+            self.history.clear()
+            self.track_missing_number = 0
         # else:
         #     try:
         #         self._update_history(self.history[-1])
@@ -177,12 +203,6 @@ class MPHands:
                     mp.solutions.hands.HAND_CONNECTIONS
                 )
         return flipped
-
-    def _update_history(self, array):
-        # Need to readjust because image is flipped horizontally
-        # readjusted_coords = np.array([1, 0]) - np.multiply(array, [1, -1])
-        # self.history.append(readjusted_coords)
-        self.history.append(array)
 
     def close(self):
         self.hands.close()
@@ -231,16 +251,18 @@ if __name__ == "__main__":
                 # Gesture
                 gesture_detector.run(hand_shape, mp_hands.history[-1])
 
-                # Hand Swipe -------------------------------
+                # # Hand Swipe -------------------------------
                 # try:
                 #     h_swipe = swipe_detector.get_swipe(0, mp_hands.history)
                 #     v_swipe = swipe_detector.get_swipe(1, mp_hands.history)
                 #     if h_swipe != 0:
-                #         print(f"SWIPED {'left' if h_swipe == -1 else 'right'}!!!!!!!!!!!!")
+                #         print(
+                #             f"SWIPED {'left' if h_swipe == -1 else 'right'}!!!!!!!!!!!!")
                 #         curr_colour = np.random.uniform(0, 255, 3)
                 #         previous_swipe_time = time.time()
                 #     elif v_swipe != 0:
-                #         print(f"SWIPED {'up' if v_swipe == -1 else 'down'}!!!!!!!!!!!!")
+                #         print(
+                #             f"SWIPED {'up' if v_swipe == -1 else 'down'}!!!!!!!!!!!!")
                 #         curr_colour = np.random.uniform(0, 255, 3)
                 #         previous_swipe_time = time.time()
                 # except IndexError:
@@ -264,7 +286,7 @@ if __name__ == "__main__":
             if cv2.waitKey(5) & 0xFF == 27:
                 break
 
-            # time.sleep(frame_delay)
+            time.sleep(frame_delay)
     except:
         mp_hands.close()
         cap.release()
