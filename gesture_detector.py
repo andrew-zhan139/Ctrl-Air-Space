@@ -63,8 +63,12 @@ class SwipeDetector:
 
 
 def is_hand(hand_of_interest, history, window):
+    if type(hand_of_interest) != list:
+        hand_of_interests = [hand_of_interest]
+    else:
+        hand_of_interests = hand_of_interest
     history_array = np.asarray(history)
-    return all(hand == hand_of_interest for hand in history_array[-int(window):])
+    return all(hand in hand_of_interests for hand in history_array[-int(window):])
 
 
 class GestureDetector:
@@ -72,7 +76,7 @@ class GestureDetector:
 
     def __init__(self, window):
         self.state = "none"
-        self.is_click = False  # Only use when state is "mouse"
+        self.is_click = False
         self.scroll_height = -1 # Relative (Only use when state is "scroll" or "volume")
         self.history = collections.deque(maxlen=100)
         self.swipe_detector = SwipeDetector(
@@ -93,7 +97,7 @@ class GestureDetector:
 
         if self.state == "scroll" or self.state == "volume":
             self.scroll_height = 1 - landmarks[LANDMARK.MIDDLE_FINGER_MCP][1]
-            if is_hand("palm-open", self.history, 5) or is_hand("palm-closed", self.history, 5): # Only palm can deactivate
+            if is_hand(["palm-open", "palm-closed"], self.history, 5): # Only palm can deactivate
                 self.state = "none"
                 self.scroll_height = -1
         else:
@@ -114,7 +118,7 @@ class GestureDetector:
                 self.state = f"swipe-{direction}"
             
             # Mouse ============================================
-            elif is_hand("palm-open", self.history, 5) or is_hand("palm-closed", self.history, 5):
+            elif is_hand(["palm-open", "palm-closed"], self.history, 5):
                 self.state = "mouse"
             elif is_hand("fist", self.history, 2):
                 self.is_click = True
