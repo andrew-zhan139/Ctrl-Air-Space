@@ -11,7 +11,9 @@ import ModificationTile from './components/ModificationTile';
 export default function App() {
 
   const Actions = ["Open Window", "Close Window", "Volume Control"];
-  
+  const thepath1 = "C:\\Users\\andre\\Swipe\\src\\js\\components\\example.png";
+  const thepath2 = "C:\\Users\\andre\\Swipe\\src\\js\\components\\onefinger.jpg";
+
   return (
     <>
       <h1>Ctrl+Air.Space</h1>
@@ -26,14 +28,14 @@ export default function App() {
         <DropDown />
   </div>*/}
   <div className="modification-tiles">
-      <ModificationTile actionName={'action sample'}/>
-      <ModificationTile />
-      <ModificationTile />
-      <ModificationTile />
-      <ModificationTile />
-      <ModificationTile />
-      <ModificationTile />
-      <ModificationTile /> </div>
+      <ModificationTile thepath={thepath1} actionName={'action sample'}/>
+      <ModificationTile thepath={thepath1}/>
+      <ModificationTile thepath={thepath2}/>
+      <ModificationTile thepath={thepath1}/>
+      <ModificationTile thepath={thepath2}/>
+      <ModificationTile thepath={thepath1}/>
+      <ModificationTile thepath={thepath2}/>
+      <ModificationTile thepath={thepath1}/> </div>
       <div>
         <OnOffSwitch />
       </div>

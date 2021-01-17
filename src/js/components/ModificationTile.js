@@ -21,16 +21,17 @@ const useStyles = makeStyles({
   },
 });
 
-export default function MediaCard() {
+export default function MediaCard({thepath}) {
   const classes = useStyles();
-
   return (
     <Card className={classes.root}>
       <CardActionArea>
         <CardMedia
-          className={classes.media}
-          image="example.png"
-          title="Contemplative Reptile"
+          component="img"
+          height="440"
+          width="140"
+          src={thepath}
+          title="Finger"
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="h2">
