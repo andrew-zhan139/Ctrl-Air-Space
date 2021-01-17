@@ -16,17 +16,7 @@ export default function App() {
 
   return (
     <>
-      <h1>Ctrl+Air.Space</h1>
-      <h2></h2>
       <GestureMatcher />
-      {/*<div className="gestures">
-        <DropDown />
-        <DropDown />
-        <DropDown />
-        <DropDown />
-        <DropDown />
-        <DropDown />
-  </div>*/}
   <div className="modification-tiles">
       <ModificationTile className="modification-indv-tile" thepath={thepath1} actionName={'action sample 1'} actionDescription={'action description 1'}/>
       <ModificationTile className="modification-indv-tile" thepath={thepath1} actionName={'action sample 2'} actionDescription={'action description 2'}/>
