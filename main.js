@@ -8,7 +8,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
-    backgroundColor: "white",
+    backgroundColor: '#121212',
     webPreferences: {
       nodeIntegration: false,
       worldSafeExecuteJavaScript: true,
@@ -27,7 +27,7 @@ if (isDev) {
 }
 
 ipcMain.on('notify', (_, message) => {
-  new Notification({title: 'Notifiation', body: message}).show();
+  new Notification({title: 'Changes Saved', body: message}).show();
 })
 
 app.whenReady().then(createWindow)
