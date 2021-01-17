@@ -78,3 +78,8 @@ temp/
 
 dist/
 build/
+/node_modules/
+/build/
+/env/
+/__pycache__/
+/.vscode/
