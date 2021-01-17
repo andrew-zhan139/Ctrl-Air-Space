@@ -40,7 +40,7 @@ export default function App() {
         <OnOffSwitch />
       </div>
       <Button variant="contained" color="primary" onClick={() => {
-        electron.notificationApi.sendNotification('Your gesture preferences have been updated.');
+        electron.notificationApi.sendNotification('Your action preferences have been updated.');
       }}>Save Preferences</Button>
       
     </>
