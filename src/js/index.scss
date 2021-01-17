@@ -1,12 +1,12 @@
 
-.card{
-  background-color: white;
-}
 h1 {
   color: blue;
 }
 .gesture-matcher {
-  color: red;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: large;
+  margin: 10px;
 }
 
 .gestures {
@@ -15,6 +15,12 @@ h1 {
 }
 
 .modification-tiles {
-  //display: flex;
-  justify-content: space-between;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 10px;
+  gap: 20px;
+}
+
+.modification-indv-tile {
+  margin: 10px;
 }

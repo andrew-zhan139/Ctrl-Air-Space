@@ -11,8 +11,8 @@ import ModificationTile from './components/ModificationTile';
 export default function App() {
 
   const Actions = ["Open Window", "Close Window", "Volume Control"];
-  const thepath1 = "C:\\Users\\andre\\Swipe\\src\\js\\components\\example.png";
-  const thepath2 = "C:\\Users\\andre\\Swipe\\src\\js\\components\\onefinger.jpg";
+  const thepath1 = 'C:\\Users\\angel\\Downloads\\Swipe\\src\\js\\components\\example.png';
+  const thepath2 = "C:\\Users\\angel\\Downloads\\Swipe\\src\\js\\components\\onefinger.jpg";
 
   return (
     <>
@@ -28,14 +28,14 @@ export default function App() {
         <DropDown />
   </div>*/}
   <div className="modification-tiles">
-      <ModificationTile thepath={thepath1} actionName={'action sample'}/>
-      <ModificationTile thepath={thepath1}/>
-      <ModificationTile thepath={thepath2}/>
-      <ModificationTile thepath={thepath1}/>
-      <ModificationTile thepath={thepath2}/>
-      <ModificationTile thepath={thepath1}/>
-      <ModificationTile thepath={thepath2}/>
-      <ModificationTile thepath={thepath1}/> </div>
+      <ModificationTile className="modification-indv-tile" thepath={thepath1} actionName={'action sample 1'} actionDescription={'action description 1'}/>
+      <ModificationTile className="modification-indv-tile" thepath={thepath1} actionName={'action sample 2'} actionDescription={'action description 2'}/>
+      <ModificationTile className="modification-indv-tile" thepath={thepath2} actionName={'action sample 3'} actionDescription={'action description 3'}/>
+      <ModificationTile className="modification-indv-tile" thepath={thepath1} actionName={'action sample 4'} actionDescription={'action description 4'}/>
+      <ModificationTile className="modification-indv-tile" thepath={thepath2} actionName={'action sample 5'} actionDescription={'action description 5'}/>
+      <ModificationTile className="modification-indv-tile" thepath={thepath1} actionName={'action sample 6'} actionDescription={'action description 6'}/>
+      <ModificationTile className="modification-indv-tile" thepath={thepath2} actionName={'action sample 7'} actionDescription={'action description 7'}/>
+      <ModificationTile className="modification-indv-tile" thepath={thepath1} actionName={'action sample 8'} actionDescription={'action description 8'}/> </div>
       <div>
         <OnOffSwitch />
       </div>
