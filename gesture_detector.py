@@ -73,6 +73,7 @@ class GestureDetector:
     def __init__(self, window):
         self.state = "none"
         self.is_click = False  # Only use when state is "mouse"
+        self.scroll_height = -1 # Relative
         self.history = collections.deque(maxlen=100)
         self.swipe_detector = SwipeDetector(
             window=10,
@@ -84,28 +85,42 @@ class GestureDetector:
     def run(self, hand, landmarks):
         self.is_click = False
         self.history.append(hand)
-        try:
-            h_swipe = swipe_detector.get_swipe(0, mp_hands.history)
-            v_swipe = swipe_detector.get_swipe(1, mp_hands.history)
-        except IndexError:
-            h_swipe = 0
-            v_swipe = 0
-        if h_swipe != 0:
-            direction = 'left' if h_swipe == -1 else 'right'
-            print(f"SWIPED {direction}!")
-            self.state = f"swipe-{direction}"
-        elif v_swipe != 0:
-            direction = 'up' if v_swipe == -1 else 'down'
-            print(f"SWIPED {direction}!")
-            self.state = f"swipe-{direction}"
-        elif is_hand("palm-open", self.history, 5) or is_hand("palm-closed", self.history, 5):
-            self.state = "mouse"
-        elif is_hand("fist", self.history, 2):
-            self.is_click = True
-        else:
+        # Two-finger ================================
+        if is_hand("peace", self.history, 5):
+            self.state = "scroll"
+        elif is_hand("palm-open", self.history, 5) or is_hand("palm-closed", self.history, 5): # Only palm can deactivate
             self.state = "none"
-            #print(landmarks[LANDMARK.INDEX_FINGER_TIP], landmarks[LANDMARK.THUMB_TIP])
-            # if np.linalg.norm(landmarks[LANDMARK.INDEX_FINGER_TIP] - landmarks[LANDMARK.THUMB_TIP]) < 0.03:
+
+        if self.state == "scroll":
+            self.scroll_height = landmarks[LANDMARK.INDEX_FINGER_TIP][1]
+        else:
+            # Swipe ====================================
+            try:
+                h_swipe = swipe_detector.get_swipe(0, mp_hands.history)
+                v_swipe = swipe_detector.get_swipe(1, mp_hands.history)
+            except IndexError:
+                h_swipe = 0
+                v_swipe = 0
+            if h_swipe != 0:
+                direction = 'left' if h_swipe == -1 else 'right'
+                print(f"SWIPED {direction}!")
+                self.state = f"swipe-{direction}"
+            elif v_swipe != 0:
+                direction = 'up' if v_swipe == -1 else 'down'
+                print(f"SWIPED {direction}!")
+                self.state = f"swipe-{direction}"
+            
+            # Mouse ============================================
+            elif is_hand("palm-open", self.history, 5) or is_hand("palm-closed", self.history, 5):
+                self.state = "mouse"
+            elif is_hand("fist", self.history, 2):
+                self.is_click = True
+            else:
+                self.state = "none"
+                #print(landmarks[LANDMARK.INDEX_FINGER_TIP], landmarks[LANDMARK.THUMB_TIP])
+                # if np.linalg.norm(landmarks[LANDMARK.INDEX_FINGER_TIP] - landmarks[LANDMARK.THUMB_TIP]) < 0.03:
+        
+
 
 
 class HandShapeDetector:
@@ -230,7 +245,7 @@ if __name__ == "__main__":
     try:
         cap = cv2.VideoCapture(0)
         while cap.isOpened():
-            print(gesture_detector.state, gesture_detector.is_click)
+            print(gesture_detector.state, gesture_detector.is_click, gesture_detector.scroll_height)
             # 1. Get image ====================================================
             success, image = cap.read()
             if not success:
