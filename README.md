@@ -1,4 +1,4 @@
-# Swipe
+# Ctrl+Air+Swipe
 
 ## Instructions for running
 1. Install ui dependencies: ```npm install``` </br>
