@@ -261,7 +261,7 @@ if __name__ == "__main__":
     try:
         cap = cv2.VideoCapture(0)
         while cap.isOpened():
-            print(gesture_detector.state, gesture_detector.is_click, gesture_detector.scroll_height)
+            hand_shape = None
             # 1. Get image ====================================================
             success, image = cap.read()
             if not success:
@@ -314,6 +314,7 @@ if __name__ == "__main__":
             cv2.imshow('Swipe', img)
 
             # =================================================================
+            print(f"State={gesture_detector.state}, isClick={gesture_detector.is_click}, scrollHeight={gesture_detector.scroll_height}, hand={hand_shape}")
             if cv2.waitKey(5) & 0xFF == 27:
                 break
 

@@ -69,6 +69,7 @@ if __name__ == "__main__":
             print(f"{data_array.shape[0]} data points for {shape}")
             with open(f"data_{shape}.p", 'wb') as f:
                 pickle.dump(data_array, f)
+        print("Now move the .p files to Server/data")
         mp_hands.close()
         cap.release()
         raise
