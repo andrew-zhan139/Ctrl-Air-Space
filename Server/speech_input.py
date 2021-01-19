@@ -2,7 +2,7 @@ import azure.cognitiveservices.speech as speechsdk
 import pyautogui
 
 #pip install azure-cognitiveservices-speech
-key = "5a27343dbaca46059d48a0f8a23bd905" # For example
+key = "AZURE_SUBSCRIPTION_KEY" # For example
 def from_mic():
     speech_config = speechsdk.SpeechConfig(subscription=key, region="eastus")
     speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config)
