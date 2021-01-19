@@ -15,8 +15,8 @@ Current iteration is not perfect, so use at your own risk 😎.
 1. In another terminal: ```npm start``` to start Electron app
 
 ## Stuff to edit before running
-- src\js\App.js: Change the file paths for thepath1, ..., thepath6
-- src\js\components\GestureMatch.js: Change the file path for the image
+- src\assets: Change the file paths for thepath1, ..., thepath6 (gesture demonstrations)
+- src\components\GestureMatch.js: Change the file path for the logo
 
 ## Setting up Python
 Libraries (which you may not have yet) to install:
