@@ -1,4 +1,4 @@
-# Ctrl+Air+Swipe
+# Ctrl+Air+Space
 
 ## Note
 Note that Filip Jerga is listed as an author due to our usage of his boilerplate code (https://github.com/Jerga99/electron-react-boilerplate).
