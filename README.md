@@ -34,7 +34,7 @@ To run a demo of the gesture recognition without computer control, go to the Ser
 ## Setting up Azure Speech Service voice recognition
 1. Create Azure Speech Service resource ([Speech Service setup example](https://github.com/MicrosoftDocs/ai-fundamentals/blob/master/02b%20-%20Speech.ipynb)). 
 1. In the Server folder, create a copy of settings_template.json. Rename it to settings.json.
-1. Add key into the json file.
+1. From Azure, get the key (e.g. "2a27343dbaca44059d48a0f8a23bd905") and resource region (e.g. "eastus") and add them to the json file .
 
 ## Improvements to be made
 - Improve robustness and reliability of gesture detection

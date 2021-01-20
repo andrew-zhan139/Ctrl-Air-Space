@@ -1,3 +1,4 @@
 {
-    "AzureSpeechServiceKey": "INSERT KEY HERE"
+    "AzureSpeechServiceKey": "INSERT KEY HERE",
+    "AzureSpeechServiceRegion": "INSERT REGION HERE"
 }
