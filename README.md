@@ -4,8 +4,18 @@
 Note that Filip Jerga is listed as an author due to our usage of his boilerplate code (https://github.com/Jerga99/electron-react-boilerplate).
 
 ## Overview
+Demo and more details can be found at https://devpost.com/software/ctrlairspace.
+
 A desktop application that allows users to execute computer commands with the use of air gestures through movement recognition models. Hack the North 2020++ 🏆!
 Current iteration is not perfect, so use at your own risk 😎.
+
+Current actions:
+- Mouse and click
+- Scroll
+- Volume control
+- Switching between windows
+- Typing via voice input
+
 
 ## Instructions for running
 1. Set up Python (see below)
